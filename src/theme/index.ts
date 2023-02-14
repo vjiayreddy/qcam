@@ -19,7 +19,7 @@ export const theme = createTheme({
         root: {
           fontSize: 11,
           fontWeight: "bold",
-          padding: 10,
+          padding: 5,
           borderLeft: "1px solid rgba(224, 224, 224, 1)"
         },
       },

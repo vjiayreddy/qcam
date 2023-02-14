@@ -68,7 +68,7 @@ const DashboardPage = () => {
   useInterval(() => {
     getApiData("sampledata.json", setScannedData, setIsDataLoading);
     getApiData("imagedata.json", setImageData, setIsDataLoading);
-  }, 10000);
+  }, 5000);
 
 
   return (
