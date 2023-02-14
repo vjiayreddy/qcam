@@ -83,7 +83,7 @@ const DashboardPage = () => {
                 alt="scanned_image"
                 width="100%"
                 src={imageData?.image
-                  ? `data:image/jpeg;base64,${imageData?.image.split("'")[1]})`
+                  ? `data:image/jpeg;base64,${imageData?.image.split("'")[1]}`
                   : "https://cdn1.vectorstock.com/i/1000x1000/50/20/no-photo-or-blank-image-icon-loading-images-vector-37375020.jpg"
                 }
               />
