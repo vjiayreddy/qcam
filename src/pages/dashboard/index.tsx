@@ -64,10 +64,12 @@ const DashboardPage = () => {
   const [scannedData, setScannedData] = useState([]);
   const [imageData, setImageData] = useState<any>(null);
   const [isDataLoading, setIsDataLoading] = useState(true);
-
+  const host = "http://localhost:8081"
+  const self_host = ""
+  const usedHost = self_host
   useInterval(() => {
-    getApiData("sampledata.json", setScannedData, setIsDataLoading);
-    getApiData("imagedata.json", setImageData, setIsDataLoading);
+    getApiData(`${usedHost}/getDetectedData`, setScannedData, setIsDataLoading);
+    getApiData(`${usedHost}/getLatestDetectedImage`, setImageData, setIsDataLoading);
   }, 5000);
 
 
@@ -80,7 +82,10 @@ const DashboardPage = () => {
               <img
                 alt="scanned_image"
                 width="100%"
-                src={imageData?.scannedPhotoUrl}
+                src={imageData?.image
+                  ? `url(data:image/jpeg;base64,${imageData?.image.split("'")[1]})`
+                  : "url(https://cdn1.vectorstock.com/i/1000x1000/50/20/no-photo-or-blank-image-icon-loading-images-vector-37375020.jpg)"
+                }
               />
             </Box>
           )}
