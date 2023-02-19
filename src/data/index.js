@@ -4,12 +4,17 @@ export const tableHead = [
   "LOT",
   "LOT EXPIRATION",
   "SERIAL NUMBER",
+  "QTY"
+];
+
+export const tableHead2 = [
   "BUSINESS UNIT",
   "BUSINESS PROCESS",
   "SITE",
   "QUARANTINE ID",
   "LPN NUMBER",
 ];
+
 export const tableContent = [
   {
     sno: 1,

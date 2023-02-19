@@ -7,7 +7,7 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import TableBody from "@mui/material/TableBody";
-import { tableContent, tableHead } from "../../data";
+import { tableContent, tableHead, tableHead2 } from "../../data";
 import Typography from "@mui/material/Typography";
 import { useInterval } from "../../useInterval";
 import { getApiData } from "../../apiService";
@@ -49,7 +49,7 @@ const StyledRightSideSection = styled(Box)(({ theme }) => ({
 }));
 
 const StyledRightSideContent = styled(Box)(({ theme }) => ({
-  flexGrow: "1",
+  flex: "1",
   overflowY: "auto",
   overflowX: "hidden",
 }));
@@ -57,21 +57,24 @@ const StyledRightSideContent = styled(Box)(({ theme }) => ({
 const StyledRightSideHeaderSection = styled(Box)(({ theme }) => ({
   display: "flex",
   padding: "10px",
-  borderBottom: `1px solid ${theme.palette.divider}`,
 }));
 
 const DashboardPage = () => {
   const [scannedData, setScannedData] = useState([]);
+  const [scannedBusinessData, setScannedBusinessData] = useState([]);
   const [imageData, setImageData] = useState<any>(null);
   const [isDataLoading, setIsDataLoading] = useState(true);
-  const host = "http://192.168.192.120:8081"
-  const self_host = host
-  const usedHost = self_host
+  const host = "http://192.168.192.120:8081";
+  const self_host = host;
+  const usedHost = self_host;
   useInterval(() => {
     getApiData(`${usedHost}/getDetectedData`, setScannedData, setIsDataLoading);
-    getApiData(`${usedHost}/getLatestDetectedImage`, setImageData, setIsDataLoading);
+    getApiData(
+      `${usedHost}/getLatestDetectedImage`,
+      setImageData,
+      setIsDataLoading
+    );
   }, 5000);
-
 
   return (
     <StyledMainSection>
@@ -82,9 +85,10 @@ const DashboardPage = () => {
               <img
                 alt="scanned_image"
                 width="100%"
-                src={imageData?.image
-                  ? `data:image/jpeg;base64,${imageData?.image.split("'")[1]}`
-                  : "https://cdn1.vectorstock.com/i/1000x1000/50/20/no-photo-or-blank-image-icon-loading-images-vector-37375020.jpg"
+                src={
+                  imageData?.image
+                    ? `data:image/jpeg;base64,${imageData?.image.split("'")[1]}`
+                    : "https://cdn1.vectorstock.com/i/1000x1000/50/20/no-photo-or-blank-image-icon-loading-images-vector-37375020.jpg"
                 }
               />
             </Box>
@@ -111,9 +115,9 @@ const DashboardPage = () => {
         </StyledRightSideHeaderSection>
         <StyledRightSideContent>
           <TableContainer>
-            <Table sx={{ width: "100%" }}>
+            <Table sx={{ width: "100%", position: "relative" }}>
               <TableHead>
-                <TableRow>
+                <TableRow sx={{ backgroundColor: "GrayText" }}>
                   {tableHead.map((item, index) => (
                     <TableCell key={index}>{item}</TableCell>
                   ))}
@@ -128,33 +132,36 @@ const DashboardPage = () => {
                     <TableCell align="left">{item.lotExpiration}</TableCell>
                     <TableCell align="left">{item.serialNumber}</TableCell>
                     <TableCell align="left">{item.businessUnit}</TableCell>
-                    <TableCell align="left">{item.businessProcess}</TableCell>
-                    <TableCell align="left">{item.site}</TableCell>
-                    <TableCell align="left">{item.QuarantineId}</TableCell>
-                    <TableCell align="left">{item.lpnNumber}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
           </TableContainer>
         </StyledRightSideContent>
-        {/* <StyledRightSideFooterSection>
-          <Box pr={1}>
-            <Button disableElevation size="small" variant="contained">
-              Edit
-            </Button>
-          </Box>
-          <Box>
-            <Button
-              color="success"
-              disableElevation
-              size="small"
-              variant="contained"
-            >
-              Done
-            </Button>
-          </Box>
-        </StyledRightSideFooterSection> */}
+        <StyledRightSideContent>
+          <TableContainer>
+            <Table sx={{ width: "100%" }}>
+              <TableHead>
+                <TableRow sx={{ backgroundColor: "GrayText" }}>
+                  {tableHead2.map((item, index) => (
+                    <TableCell key={index}>{item}</TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {scannedBusinessData.map((item: any, index) => (
+                  <TableRow>
+                    <TableCell>{item.ilpn}</TableCell>
+                    <TableCell align="left">{item.gstn}</TableCell>
+                    <TableCell align="left">{item.lot}</TableCell>
+                    <TableCell align="left">{item.lotExpiration}</TableCell>
+                    <TableCell align="left">{item.serialNumber}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </StyledRightSideContent>
       </StyledRightSideSection>
     </StyledMainSection>
   );

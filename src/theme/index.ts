@@ -14,13 +14,15 @@ export const theme = createTheme({
         },
       },
     },
+   
     MuiTableCell: {
       styleOverrides: {
         root: {
           fontSize: 11,
           fontWeight: "bold",
           padding: 5,
-          borderLeft: "1px solid rgba(224, 224, 224, 1)"
+          borderLeft: "1px solid rgba(224, 224, 224, 1)",
+          borderTop: "1px solid rgba(224, 224, 224, 1)",
         },
       },
     },
