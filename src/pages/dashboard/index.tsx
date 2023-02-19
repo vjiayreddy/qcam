@@ -64,8 +64,8 @@ const DashboardPage = () => {
   const [scannedData, setScannedData] = useState([]);
   const [imageData, setImageData] = useState<any>(null);
   const [isDataLoading, setIsDataLoading] = useState(true);
-  const host = "http://localhost:8081"
-  const self_host = ""
+  const host = "http://192.168.192.120:8081"
+  const self_host = host
   const usedHost = self_host
   useInterval(() => {
     getApiData(`${usedHost}/getDetectedData`, setScannedData, setIsDataLoading);
