@@ -69,17 +69,37 @@ code {
   width: 0;
 }
 
+table {
+  text-align: left;
+  position: relative;
+  width: 100%;
+  border-collapse: collapse;
+}
+tr {
+  border-bottom: 1px solid gainsboro !important;
+}
+th,
+td {
+  padding: 0.25rem;
+  font-size: small;
+  border-bottom: 1px solid gainsboro !important;
+  border-right: 1px solid gainsboro !important;
+}
+tr.liteGray th {
+  background: #212121;
+  color: white;
+}
+tr.green th {
+  background: green;
+  color: white;
+}
+tr.purple th {
+  background: purple;
+  color: white;
+}
 th {
-  color: white !important;
-}
-
-@-webkit-keyframes rotate {
-  100% {
-    -webkit-transform: rotate(360deg);
-  }
-}
-@keyframes rotate {
-  100% {
-    transform: rotate(360deg);
-  }
+  background: white;
+  position: sticky;
+  top: 0;
+  z-index: 1; /* Don't forget this, required for the stickiness */
 }
