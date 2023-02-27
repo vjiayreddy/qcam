@@ -101,6 +101,7 @@ const data = [
 const DashboardPage = () => {
   const [imageData, setImageData] = useState<any>(null);
   const [isDataLoading, setIsDataLoading] = useState(true);
+  
   const host = "http://192.168.192.120:8081";
   const self_host = host;
   const usedHost = self_host;

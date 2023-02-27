@@ -8,7 +8,13 @@ import {
   Button,
   Checkbox,
 } from "@mui/material";
+import { useRef, useState } from "react";
+import { getApiData } from "../../apiService";
 import Logo from "../../cardinal.png";
+import LoadingIcon from "../../synchronize.gif";
+import { useInterval } from "../../useInterval";
+import Popup from 'reactjs-popup';
+import 'reactjs-popup/dist/index.css';
 
 const StyledMainContainer = styled(Box)(({ theme }) => ({
   height: "100vh",
@@ -115,6 +121,14 @@ const StyledCapturedImage = styled(Box)(({ theme }) => ({
   paddingBottom: 32,
 }));
 
+const StyledLeftSideSectionFooter = styled(Box)(({ theme }) => ({
+  borderTop: `1px solid ${theme.palette.divider}`,
+  display: "flex",
+  alignItems: "center",
+  padding: 10,
+}));
+
+
 const data = [
   {
     barcode: "(12)23456789456",
@@ -134,6 +148,35 @@ const data = [
 ];
 
 const DashboardPage = () => {
+  const businessUnitRef = useRef<HTMLInputElement>()
+  const siteRef = useRef<HTMLInputElement>()
+  const businessProcessRef = useRef<HTMLInputElement>()
+  const [scannedData, setScannedData] : any = useState([]);
+  const [isDataLoading, setIsDataLoading] = useState(true);
+  const host = "http://localhost:8081";
+  const onSubmit = () => {
+    console.log("Clicked!!");
+    if(businessProcessRef.current && siteRef.current && businessUnitRef.current) {
+      console.log(businessProcessRef.current.value);
+      console.log(siteRef.current.value);
+      console.log(businessUnitRef.current.value);
+    }
+  }
+  
+
+  const checkBox = (scanStatus: string) => {
+    return scanStatus === "DETECTED"
+  }
+  const requiredTrue = () => true
+  useInterval(() => {
+    getApiData(`${host}/getDetectedData`, setScannedData, setIsDataLoading);
+    // getApiData(
+    //   `${usedHost}/getLatestDetectedImage`,
+    //   setImageData,
+    //   setIsDataLoading
+    // );
+  }, 5000);
+
   return (
     <StyledMainContainer>
       <StyledAppBar>
@@ -146,15 +189,15 @@ const DashboardPage = () => {
             <Grid container spacing={2}>
               <Grid item md={6} lg={6} sm={6} xl={6}>
                 <StyledInputLabel>Business Unit</StyledInputLabel>
-                <StyledInputBase placeholder="Business Unit" />
+                <StyledInputBase required={requiredTrue()} inputRef={businessUnitRef} placeholder="Business Unit" />
               </Grid>
               <Grid item md={6} lg={6} sm={6} xl={6}>
                 <StyledInputLabel>Site</StyledInputLabel>
-                <StyledInputBase placeholder="Business Unit" />
+                <StyledInputBase required={requiredTrue()} inputRef={siteRef} placeholder="Site" />
               </Grid>
               <Grid item xs={12}>
                 <StyledInputLabel>Business Process</StyledInputLabel>
-                <StyledInputBase placeholder="Business Unit" />
+                <StyledInputBase required={requiredTrue()} inputRef={businessProcessRef} placeholder="Business Process" />
               </Grid>
             </Grid>
           </StyledFormBox>
@@ -172,19 +215,31 @@ const DashboardPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {data.map((item, index) => (
+                {scannedData?.barcodeData?.map((item: any, index: any) => (
                   <tr key={index}>
                     <td style={{ paddingLeft: "32px" }}>
-                      <Checkbox />
+                      <Checkbox checked={checkBox(item.scan_status)} />
                     </td>
                     <td>{item.barcode}</td>
-                    <td>{item.product}</td>
-                    <td>{item.ILPN}</td>
+                    <td>{item.item_name ? item.item_name : "Anonaymous"}</td>
+                    <td>{item.ilpn}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </StyledTableSection>
+          {isDataLoading && (
+          <StyledLeftSideSectionFooter>
+            <Box>
+              <img width={20} src={LoadingIcon} alt="loading_icon" />
+            </Box>
+            <Box ml={1} mb={0.5}>
+              <Typography sx={{ fontWeight: "bold" }} variant="body2">
+                Fetching...
+              </Typography>
+            </Box>
+          </StyledLeftSideSectionFooter>
+        )}
           <StyledActionsSection pl={4} pt={2} pb={2} pr={4}>
             <Box flexGrow={1}>
               <Typography sx={{ fontSize: 15 }} variant="h6">
@@ -192,7 +247,7 @@ const DashboardPage = () => {
               </Typography>
             </Box>
             <Box mr={1}>
-              <Button size="small" variant="contained">
+              <Button size="small" variant="contained" onClick={onSubmit}>
                 Submit
               </Button>
             </Box>
@@ -201,6 +256,7 @@ const DashboardPage = () => {
             </Button>
           </StyledActionsSection>
         </StyledLeftSideBox>
+        
         <StyledRightSideBox>
           <StyledHeadingSection
             sx={{ borderTop: "none", textAlign: "right" }}
@@ -228,7 +284,11 @@ const DashboardPage = () => {
                   <img
                     alt="1"
                     width="100%"
-                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQYCKpmH5_Ymq7V26kKyx6gnOvwffHHCWBmQA&usqp=CAU"
+                    src={scannedData.status === "SCANNING" ? 
+                    (scannedData.image_a ? `data:image/jpeg;base64,${scannedData?.image_a.split("'")[1]}` : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTsuqL-_eufoeGDEeZ-VDPxHZc8L0NVCqwLAw&usqp=CAU")
+                    : (scannedData.status === "DETECTED" ? 
+                    (scannedData.detected_image_a ? `data:image/jpeg;base64,${scannedData?.detected_image_a.split("'")[1]}` : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTsuqL-_eufoeGDEeZ-VDPxHZc8L0NVCqwLAw&usqp=CAU"): "")
+                  }
                   />
                   <StyledInputLabel>Side-1</StyledInputLabel>
                 </Grid>
@@ -236,7 +296,12 @@ const DashboardPage = () => {
                   <img
                     alt="2"
                     width="100%"
-                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTsuqL-_eufoeGDEeZ-VDPxHZc8L0NVCqwLAw&usqp=CAU"
+                    src={scannedData.status === "SCANNING" ? 
+                    (scannedData.image_b ? `data:image/jpeg;base64,${scannedData?.image_b.split("'")[1]}` : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTsuqL-_eufoeGDEeZ-VDPxHZc8L0NVCqwLAw&usqp=CAU")
+                    : (scannedData.status === "DETECTED" ? 
+                    (scannedData.detected_image_b ? `data:image/jpeg;base64,${scannedData?.detected_image_b.split("'")[1]}` : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTsuqL-_eufoeGDEeZ-VDPxHZc8L0NVCqwLAw&usqp=CAU"): "")
+                  }
+                    // src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTsuqL-_eufoeGDEeZ-VDPxHZc8L0NVCqwLAw&usqp=CAU"
                   />
                   <StyledInputLabel>Side-2</StyledInputLabel>
                 </Grid>
@@ -244,7 +309,12 @@ const DashboardPage = () => {
                   <img
                     alt="3"
                     width="100%"
-                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQYCKpmH5_Ymq7V26kKyx6gnOvwffHHCWBmQA&usqp=CAU"
+                    src={scannedData.status === "SCANNING" ? 
+                    (scannedData.image_c ? `data:image/jpeg;base64,${scannedData?.image_c.split("'")[1]}` : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTsuqL-_eufoeGDEeZ-VDPxHZc8L0NVCqwLAw&usqp=CAU")
+                    : (scannedData.status === "DETECTED" ? 
+                    (scannedData.detected_image_c ? `data:image/jpeg;base64,${scannedData?.detected_image_c.split("'")[1]}` : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTsuqL-_eufoeGDEeZ-VDPxHZc8L0NVCqwLAw&usqp=CAU"): "")
+                  }
+                    // src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQYCKpmH5_Ymq7V26kKyx6gnOvwffHHCWBmQA&usqp=CAU"
                   />
                   <StyledInputLabel>Side-3</StyledInputLabel>
                 </Grid>
