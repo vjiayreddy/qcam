@@ -15,6 +15,12 @@ import LoadingIcon from "../../synchronize.gif";
 import { useInterval } from "../../useInterval";
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+
 
 const StyledMainContainer = styled(Box)(({ theme }) => ({
   height: "100vh",
@@ -153,6 +159,7 @@ const DashboardPage = () => {
   const businessProcessRef = useRef<HTMLInputElement>()
   const [scannedData, setScannedData] : any = useState([]);
   const [isDataLoading, setIsDataLoading] = useState(true);
+  const [open, setOpen] = useState(false);
   const host = "http://localhost:8081";
   const onSubmit = () => {
     console.log("Clicked!!");
@@ -161,8 +168,12 @@ const DashboardPage = () => {
       console.log(siteRef.current.value);
       console.log(businessUnitRef.current.value);
     }
+    setOpen(true)
   }
   
+  const handleClose = () => {
+    setOpen(false)
+  }
 
   const checkBox = (scanStatus: string) => {
     return scanStatus === "DETECTED"
@@ -323,7 +334,26 @@ const DashboardPage = () => {
           </StyledRightSectionContent>
         </StyledRightSideBox>
       </StyledContentBox>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {"Success"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Successfully submitted to EAI!!
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} autoFocus>Ok</Button>
+        </DialogActions>
+      </Dialog>
     </StyledMainContainer>
+    
   );
 };
 
