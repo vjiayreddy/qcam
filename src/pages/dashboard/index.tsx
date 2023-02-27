@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { styled } from "@mui/material/styles";
-import { Box, Chip, TableCell } from "@mui/material";
+import { Box, Button, Chip, TableCell } from "@mui/material";
 import LoadingIcon from "../../synchronize.gif";
 import Table from "@mui/material/Table";
 import TableContainer from "@mui/material/TableContainer";
@@ -64,7 +64,7 @@ const DashboardPage = () => {
   const [scannedBusinessData, setScannedBusinessData] = useState([]);
   const [imageData, setImageData] = useState<any>(null);
   const [isDataLoading, setIsDataLoading] = useState(true);
-  const host = "http://192.168.192.120:8081";
+  const host = "http://localhost:8081";
   const self_host = host;
   const usedHost = self_host;
   useInterval(() => {
@@ -84,7 +84,25 @@ const DashboardPage = () => {
             <Box>
               <img
                 alt="scanned_image"
-                width="100%"
+                width="50%"
+                src={
+                  imageData?.image
+                    ? `data:image/jpeg;base64,${imageData?.image.split("'")[1]}`
+                    : "https://cdn1.vectorstock.com/i/1000x1000/50/20/no-photo-or-blank-image-icon-loading-images-vector-37375020.jpg"
+                }
+              />
+              <img
+                alt="scanned_image"
+                width="50%"
+                src={
+                  imageData?.image
+                    ? `data:image/jpeg;base64,${imageData?.image.split("'")[1]}`
+                    : "https://cdn1.vectorstock.com/i/1000x1000/50/20/no-photo-or-blank-image-icon-loading-images-vector-37375020.jpg"
+                }
+              />
+              <img
+                alt="scanned_image"
+                width="50%"
                 src={
                   imageData?.image
                     ? `data:image/jpeg;base64,${imageData?.image.split("'")[1]}`
@@ -162,6 +180,8 @@ const DashboardPage = () => {
             </Table>
           </TableContainer>
         </StyledRightSideContent>
+          <Button variant="contained" size="medium" color="success">Submit</Button>
+          <Button variant="contained" size="medium">Scan Again</Button>
       </StyledRightSideSection>
     </StyledMainSection>
   );
