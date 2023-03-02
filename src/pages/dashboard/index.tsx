@@ -8,18 +8,15 @@ import {
   Button,
   Checkbox,
 } from "@mui/material";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { getApiData } from "../../apiService";
 import Logo from "../../cardinal.png";
 import LoadingIcon from "../../synchronize.gif";
 import { useInterval } from "../../useInterval";
-import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
+import { FieldError, SubmitHandler, useForm } from "react-hook-form";
+import DialogBox from "./dialog";
+import { FormValues } from "../../data";
 
 
 const StyledMainContainer = styled(Box)(({ theme }) => ({
@@ -135,46 +132,49 @@ const StyledLeftSideSectionFooter = styled(Box)(({ theme }) => ({
 }));
 
 
-const data = [
-  {
-    barcode: "(12)23456789456",
-    product: "Flecanide Acelete Tab",
-    ILPN: "(12)23456789456",
-  },
-  {
-    barcode: "(12)23456789456",
-    product: "Flecanide Acelete Tab",
-    ILPN: "(12)23456789456",
-  },
-  {
-    barcode: "(12)23456789456",
-    product: "Flecanide Acelete Tab",
-    ILPN: "(12)23456789456",
-  },
-];
+// const data = [
+//   {
+//     barcode: "(12)23456789456",
+//     product: "Flecanide Acelete Tab",
+//     ILPN: "(12)23456789456",
+//   },
+//   {
+//     barcode: "(12)23456789456",
+//     product: "Flecanide Acelete Tab",
+//     ILPN: "(12)23456789456",
+//   },
+//   {
+//     barcode: "(12)23456789456",
+//     product: "Flecanide Acelete Tab",
+//     ILPN: "(12)23456789456",
+//   },
+// ];
 
 const DashboardPage = () => {
-  const businessUnitRef = useRef<HTMLInputElement>()
-  const siteRef = useRef<HTMLInputElement>()
-  const businessProcessRef = useRef<HTMLInputElement>()
+  const { register, handleSubmit } = useForm<FormValues>({
+    mode: "onBlur"
+  });
+  const [openDialog, setOpenDialog] : any = useState(false);
+  const [dialogtitle, setDialogtitle] : any = useState("");
+  const [dialogText, setDialogText] : any = useState("");
   const [scannedData, setScannedData] : any = useState([]);
   const [isDataLoading, setIsDataLoading] = useState(true);
-  const [open, setOpen] = useState(false);
   const host = "http://localhost:8081";
-  const onSubmit = () => {
-    console.log("Clicked!!");
-    if(businessProcessRef.current && siteRef.current && businessUnitRef.current) {
-      console.log(businessProcessRef.current.value);
-      console.log(siteRef.current.value);
-      console.log(businessUnitRef.current.value);
-    }
-    setOpen(true)
-  }
-  
-  const handleClose = () => {
-    setOpen(false)
+
+  const onFormSubmit: SubmitHandler<FormValues> = (data) => {
+    console.log(data);
+    setDialogtitle("Success")
+    setDialogText("Successfully submitted to EAI!!")
+    setOpenDialog(true)
   }
 
+  const onErrors = (error: any) => {
+    console.log(error);
+    
+    setDialogtitle("Error")
+    setDialogText("Something went wrong!!", error?.message)
+    setOpenDialog(true)
+  }
   const checkBox = (scanStatus: string) => {
     return scanStatus === "DETECTED"
   }
@@ -190,25 +190,27 @@ const DashboardPage = () => {
 
   return (
     <StyledMainContainer>
+      
       <StyledAppBar>
         <Typography variant="h6">Qcam Exception Scan Results</Typography>
         <img alt="logo" width="150px" src={Logo} />
       </StyledAppBar>
       <StyledContentBox>
+        <form onSubmit={ handleSubmit(onFormSubmit, onErrors) }>
         <StyledLeftSideBox>
           <StyledFormBox pl={4} pt={2} pb={2} pr={4}>
             <Grid container spacing={2}>
               <Grid item md={6} lg={6} sm={6} xl={6}>
                 <StyledInputLabel>Business Unit</StyledInputLabel>
-                <StyledInputBase required={requiredTrue()} inputRef={businessUnitRef} placeholder="Business Unit" />
+                <StyledInputBase required={requiredTrue()} {...register('businessUnit', {required: "Business Unit is required", minLength: 3})} placeholder="Business Unit" />
               </Grid>
               <Grid item md={6} lg={6} sm={6} xl={6}>
                 <StyledInputLabel>Site</StyledInputLabel>
-                <StyledInputBase required={requiredTrue()} inputRef={siteRef} placeholder="Site" />
+                <StyledInputBase required={requiredTrue()} {...register('site', { required: "Site value is required" })} placeholder="Site" />
               </Grid>
               <Grid item xs={12}>
                 <StyledInputLabel>Business Process</StyledInputLabel>
-                <StyledInputBase required={requiredTrue()} inputRef={businessProcessRef} placeholder="Business Process" />
+                <StyledInputBase required={requiredTrue()} {...register('businessProcess', {required: "Business Process is required"})} placeholder="Business Process" />
               </Grid>
             </Grid>
           </StyledFormBox>
@@ -251,6 +253,8 @@ const DashboardPage = () => {
             </Box>
           </StyledLeftSideSectionFooter>
         )}
+        <DialogBox  openDialog={openDialog} setOpenDialog={setOpenDialog}  text= {dialogText} title= {dialogtitle}></DialogBox>
+
           <StyledActionsSection pl={4} pt={2} pb={2} pr={4}>
             <Box flexGrow={1}>
               <Typography sx={{ fontSize: 15 }} variant="h6">
@@ -258,7 +262,7 @@ const DashboardPage = () => {
               </Typography>
             </Box>
             <Box mr={1}>
-              <Button size="small" variant="contained" onClick={onSubmit}>
+              <Button type="submit" size="small" variant="contained">
                 Submit
               </Button>
             </Box>
@@ -267,7 +271,7 @@ const DashboardPage = () => {
             </Button>
           </StyledActionsSection>
         </StyledLeftSideBox>
-        
+        </form>
         <StyledRightSideBox>
           <StyledHeadingSection
             sx={{ borderTop: "none", textAlign: "right" }}
@@ -334,24 +338,7 @@ const DashboardPage = () => {
           </StyledRightSectionContent>
         </StyledRightSideBox>
       </StyledContentBox>
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">
-          {"Success"}
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            Successfully submitted to EAI!!
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} autoFocus>Ok</Button>
-        </DialogActions>
-      </Dialog>
+      
     </StyledMainContainer>
     
   );

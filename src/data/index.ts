@@ -1,3 +1,5 @@
+import { Message, MultipleFieldErrors, Ref } from "react-hook-form";
+
 export const tableHead = [
   "ILPN",
   "GTIN",
@@ -14,6 +16,12 @@ export const tableHead2 = [
   "QUARANTINE ID",
   "LPN NUMBER",
 ];
+
+export type FormValues = {
+  businessProcess: string;
+  site: string;
+  businessUnit: string;
+};
 
 export const tableContent = [
   {
