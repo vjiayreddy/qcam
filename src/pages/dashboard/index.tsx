@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-undef */
 import {
   styled,
   Box,
@@ -7,8 +8,11 @@ import {
   InputLabel,
   Button,
   Checkbox,
+  Collapse,
+  Alert,
+  IconButton,
 } from "@mui/material";
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { getApiData } from "../../apiService";
 import Logo from "../../cardinal.png";
 import LoadingIcon from "../../synchronize.gif";
@@ -17,6 +21,8 @@ import 'reactjs-popup/dist/index.css';
 import { FieldError, SubmitHandler, useForm } from "react-hook-form";
 import DialogBox from "./dialog";
 import { FormValues } from "../../data";
+import CloseIcon from '@mui/icons-material/Close';
+import { getApiData2 } from "../../apiService2";
 
 
 const StyledMainContainer = styled(Box)(({ theme }) => ({
@@ -154,6 +160,7 @@ const DashboardPage = () => {
   const { register, handleSubmit } = useForm<FormValues>({
     mode: "onBlur"
   });
+  const [isAlertOpen, setIsAlertOpen] : any = useState(false);
   const [openDialog, setOpenDialog] : any = useState(false);
   const [dialogtitle, setDialogtitle] : any = useState("");
   const [dialogText, setDialogText] : any = useState("");
@@ -179,18 +186,46 @@ const DashboardPage = () => {
     return scanStatus === "DETECTED"
   }
   const requiredTrue = () => true
+  const isScanAgained = useMemo(() => {
+    const scanAgainValue = parseInt(scannedData.isScanAgain)
+    return setIsAlertOpen(scanAgainValue === 1)
+  }, [scannedData.isScanAgain])
   useInterval(() => {
     getApiData(`${host}/getDetectedData`, setScannedData, setIsDataLoading);
+    
+    if(parseInt(scannedData.isScanAgain) === 1 && scannedData.scanAgainStatus === "DETECTED") isScanAgained()
     // getApiData(
     //   `${usedHost}/getLatestDetectedImage`,
     //   setImageData,
     //   setIsDataLoading
     // );
   }, 5000);
-
+  const handleClick = () => {
+    getApiData2(`${host}/scan-again?pid=${scannedData.pid}`,)
+  }
   return (
     <StyledMainContainer>
-      
+      <Box sx={{ width: '100%' }}>
+      <Collapse in={isAlertOpen}>
+        <Alert
+          action={
+            <IconButton
+              aria-label="close"
+              color="inherit"
+              size="small"
+              onClick={() => {
+                setIsAlertOpen(false);
+              }}
+            >
+              <CloseIcon fontSize="inherit" />
+            </IconButton>
+          }
+          sx={{ mb: 2 }}
+        >
+          Scan Again done Successfully!!
+        </Alert>
+      </Collapse>
+    </Box>
       <StyledAppBar>
         <Typography variant="h6">Qcam Exception Scan Results</Typography>
         <img alt="logo" width="150px" src={Logo} />
@@ -266,7 +301,7 @@ const DashboardPage = () => {
                 Submit
               </Button>
             </Box>
-            <Button size="small" color="error" variant="contained">
+            <Button size="small" color="error" variant="contained" onClick={handleClick}>
               Scan Again
             </Button>
           </StyledActionsSection>
@@ -337,6 +372,7 @@ const DashboardPage = () => {
             </StyledCapturedImage>
           </StyledRightSectionContent>
         </StyledRightSideBox>
+        
       </StyledContentBox>
       
     </StyledMainContainer>
