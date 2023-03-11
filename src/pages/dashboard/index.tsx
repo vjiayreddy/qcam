@@ -12,7 +12,7 @@ import {
   Alert,
   IconButton,
 } from "@mui/material";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { getApiData } from "../../apiService";
 import Logo from "../../cardinal.png";
 import LoadingIcon from "../../synchronize.gif";
@@ -23,6 +23,8 @@ import DialogBox from "./dialog";
 import { FormValues } from "../../data";
 import CloseIcon from '@mui/icons-material/Close';
 import { getApiData2 } from "../../apiService2";
+import { io } from "socket.io-client";
+import { encode } from "base64-arraybuffer";
 
 
 const StyledMainContainer = styled(Box)(({ theme }) => ({
@@ -156,10 +158,12 @@ const StyledLeftSideSectionFooter = styled(Box)(({ theme }) => ({
 //   },
 // ];
 
+const socket = io("http://localhost:8081/");
 const DashboardPage = () => {
   const { register, handleSubmit } = useForm<FormValues>({
     mode: "onBlur"
   });
+  const [imageBase64, setImageBase64] : any = useState("");
   const [isAlertOpen, setIsAlertOpen] : any = useState(false);
   const [openDialog, setOpenDialog] : any = useState(false);
   const [dialogtitle, setDialogtitle] : any = useState("");
@@ -187,21 +191,47 @@ const DashboardPage = () => {
   }
   const requiredTrue = () => true
   const isScanAgained = useMemo(() => {
-    const scanAgainValue = parseInt(scannedData.isScanAgain)
-    return setIsAlertOpen(scanAgainValue === 1)
-  }, [scannedData.isScanAgain])
+    return setIsAlertOpen(scannedData.scanAgainStatus === "DETECTED")
+  }, [scannedData.scanAgainStatus])
   useInterval(() => {
     getApiData(`${host}/getDetectedData`, setScannedData, setIsDataLoading);
+    isScanAgained()
     
-    if(parseInt(scannedData.isScanAgain) === 1 && scannedData.scanAgainStatus === "DETECTED") isScanAgained()
     // getApiData(
     //   `${usedHost}/getLatestDetectedImage`,
     //   setImageData,
     //   setIsDataLoading
     // );
   }, 5000);
+
+
+  useEffect(() => {
+    socket.on('connect', () => {
+      console.log("connected to socket!!");
+    });
+
+    socket.on('disconnect', () => {
+      console.log("disconnected to socket!!");
+    });
+    socket.on('message', (data) => {
+      
+      setImageBase64("data:image/jpeg;base64,"+data)
+      
+    })
+    // fetch(`${host}/start-stream`)
+  
+    return () => {
+      socket.off('connect');
+      socket.off('disconnect');
+      socket.off('message');
+    };
+  }, [])
+ 
   const handleClick = () => {
     getApiData2(`${host}/scan-again?pid=${scannedData.pid}`,)
+  }
+  const handleClick1 = () => {
+    socket.emit("message", "Message from server")
   }
   return (
     <StyledMainContainer>
@@ -304,6 +334,9 @@ const DashboardPage = () => {
             <Button size="small" color="error" variant="contained" onClick={handleClick}>
               Scan Again
             </Button>
+            <Button size="small" color="error" variant="contained" onClick={handleClick1}>
+              send to server
+            </Button>
           </StyledActionsSection>
         </StyledLeftSideBox>
         </form>
@@ -319,6 +352,7 @@ const DashboardPage = () => {
           <StyledRightSectionContent>
             <StyledLiveViewVideo>
               <StyledLiveIndication>LIVE</StyledLiveIndication>
+              <img src={imageBase64} alt="Live preview to be presented!!" />
             </StyledLiveViewVideo>
             <StyledHeadingSection
               sx={{ borderTop: "none", textAlign: "left" }}
