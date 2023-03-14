@@ -19,12 +19,14 @@ import LoadingIcon from "../../synchronize.gif";
 import { useInterval } from "../../useInterval";
 import 'reactjs-popup/dist/index.css';
 import { FieldError, SubmitHandler, useForm } from "react-hook-form";
-import DialogBox from "./dialog";
+import DialogBox from "../side-components/dialog";
 import { FormValues } from "../../data";
 import CloseIcon from '@mui/icons-material/Close';
 import { getApiData2 } from "../../apiService2";
 import { io } from "socket.io-client";
 import { encode } from "base64-arraybuffer";
+import axios from "axios";
+import AlertBox from "../side-components/alert";
 
 
 const StyledMainContainer = styled(Box)(({ theme }) => ({
@@ -165,9 +167,18 @@ const DashboardPage = () => {
   });
   const [imageBase64, setImageBase64] : any = useState("");
   const [isAlertOpen, setIsAlertOpen] : any = useState(false);
+
+  // Dialog Props
   const [openDialog, setOpenDialog] : any = useState(false);
   const [dialogtitle, setDialogtitle] : any = useState("");
   const [dialogText, setDialogText] : any = useState("");
+
+  // Alert Props
+  const [openAlertBox, setOpenAlertBox] : any = useState(false);
+  const [alertTitle, setAlertTitle] : any = useState("");
+  const [alertType, setAlertType] : any = useState("success");
+
+
   const [scannedData, setScannedData] : any = useState([]);
   const [isDataLoading, setIsDataLoading] = useState(true);
   const host = "http://localhost:8081";
@@ -191,7 +202,11 @@ const DashboardPage = () => {
   }
   const requiredTrue = () => true
   const isScanAgained = useMemo(() => {
-    return setIsAlertOpen(scannedData.scanAgainStatus === "DETECTED")
+    if(scannedData.scanAgainStatus === "DETECTED") {
+      setOpenAlertBox(true)
+      setAlertTitle("Scan Again done Successfully!!")
+    }
+    return () => null
   }, [scannedData.scanAgainStatus])
   useInterval(() => {
     getApiData(`${host}/getDetectedData`, setScannedData, setIsDataLoading);
@@ -218,8 +233,14 @@ const DashboardPage = () => {
       setImageBase64("data:image/jpeg;base64,"+data)
       
     })
-    // fetch(`${host}/start-stream`)
-  
+
+    socket.on('handleError', (error) => {
+      const { errorMessage } = error
+      setOpenAlertBox(false)
+      setAlertTitle(errorMessage)
+      setAlertType("error")
+    })
+
     return () => {
       socket.off('connect');
       socket.off('disconnect');
@@ -227,6 +248,10 @@ const DashboardPage = () => {
     };
   }, [])
  
+  const getData = async()=>{
+    const res = await axios.get('https://geolocation-db.com/json/')
+    console.log(res.data);
+}
   const handleClick = () => {
     getApiData2(`${host}/scan-again?pid=${scannedData.pid}`,)
   }
@@ -235,7 +260,7 @@ const DashboardPage = () => {
   }
   return (
     <StyledMainContainer>
-      <Box sx={{ width: '100%' }}>
+      {/* <Box sx={{ width: '100%' }}>
       <Collapse in={isAlertOpen}>
         <Alert
           action={
@@ -255,7 +280,7 @@ const DashboardPage = () => {
           Scan Again done Successfully!!
         </Alert>
       </Collapse>
-    </Box>
+    </Box> */}
       <StyledAppBar>
         <Typography variant="h6">Qcam Exception Scan Results</Typography>
         <img alt="logo" width="150px" src={Logo} />
@@ -319,6 +344,7 @@ const DashboardPage = () => {
           </StyledLeftSideSectionFooter>
         )}
         <DialogBox  openDialog={openDialog} setOpenDialog={setOpenDialog}  text= {dialogText} title= {dialogtitle}></DialogBox>
+        <AlertBox  openAlertBox={openAlertBox} setOpenAlertBox={setOpenAlertBox}  title= {alertTitle} alertType= {alertType}></AlertBox>
 
           <StyledActionsSection pl={4} pt={2} pb={2} pr={4}>
             <Box flexGrow={1}>
