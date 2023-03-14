@@ -360,9 +360,6 @@ const DashboardPage = () => {
             <Button size="small" color="error" variant="contained" onClick={handleClick}>
               Scan Again
             </Button>
-            <Button size="small" color="error" variant="contained" onClick={handleClick1}>
-              send to server
-            </Button>
           </StyledActionsSection>
         </StyledLeftSideBox>
         </form>
