@@ -8,23 +8,18 @@ import {
   InputLabel,
   Button,
   Checkbox,
-  Collapse,
-  Alert,
-  IconButton,
 } from "@mui/material";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getApiData } from "../../apiService";
 import Logo from "../../cardinal.png";
 import LoadingIcon from "../../synchronize.gif";
 import { useInterval } from "../../useInterval";
 import 'reactjs-popup/dist/index.css';
-import { FieldError, SubmitHandler, useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 import DialogBox from "../side-components/dialog";
 import { FormValues } from "../../data";
-import CloseIcon from '@mui/icons-material/Close';
 import { getApiData2 } from "../../apiService2";
 import { io } from "socket.io-client";
-import { encode } from "base64-arraybuffer";
 import axios from "axios";
 import AlertBox from "../side-components/alert";
 
@@ -229,6 +224,7 @@ const DashboardPage = () => {
       console.log("disconnected to socket!!");
     });
     socket.on('message', (data) => {
+      console.log("data", data);
       
       setImageBase64("data:image/jpeg;base64,"+data)
       
@@ -375,7 +371,7 @@ const DashboardPage = () => {
           <StyledRightSectionContent>
             <StyledLiveViewVideo>
               <StyledLiveIndication>LIVE</StyledLiveIndication>
-              <img src={imageBase64} alt="Live preview to be presented!!" />
+              <img src={imageBase64} alt="Live preview to be presented!!"  />
             </StyledLiveViewVideo>
             <StyledHeadingSection
               sx={{ borderTop: "none", textAlign: "left" }}
