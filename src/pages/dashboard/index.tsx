@@ -103,8 +103,11 @@ const StyledRightSectionContent = styled(Box)(({ theme }) => ({
 
 const StyledLiveViewVideo = styled(Box)(({ theme }) => ({
   flex: 1.2,
-  backgroundColor: theme.palette.grey[600],
+  // backgroundColor: theme.palette.grey[600],
   position: "relative",
+  backgroundRepeat: "no-repeat",
+  backgroundSize: "cover",
+  backgroundPosition: "top center",
 }));
 
 const StyledLiveIndication = styled(Box)(({ theme }) => ({
@@ -369,9 +372,9 @@ const DashboardPage = () => {
             Live View
           </StyledHeadingSection>
           <StyledRightSectionContent>
-            <StyledLiveViewVideo>
+            <StyledLiveViewVideo sx={{ backgroundImage: `url(${imageBase64})`, flag: "important" }}> 
               <StyledLiveIndication>LIVE</StyledLiveIndication>
-              <img src={imageBase64} alt="Live preview to be presented!!"  />
+              {/* <img src={imageBase64} alt="Live preview to be presented!!"  /> */}
             </StyledLiveViewVideo>
             <StyledHeadingSection
               sx={{ borderTop: "none", textAlign: "left" }}
